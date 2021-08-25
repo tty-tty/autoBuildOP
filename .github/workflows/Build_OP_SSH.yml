@@ -1,6 +1,6 @@
 # modify @2020-08-25
 
-name: Build_OP_
+name: Build_OP
 
 on:
   push:
@@ -52,43 +52,4 @@ jobs:
       run: cd openwrt && ./scripts/feeds install -a
 
     - name: SSH connection to Actions
-      uses: 82kg/debugger-action@master
-
-    - name: 下载所有包
-      id: package
-      run: |
-        cd openwrt
-        make defconfig
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-
-    - name: 开始编译固件
-      id: compile
-      run: |
-        cd openwrt
-        echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 V=s
-        echo "::set-output name=status::success"
-
-    - name: 上传编译后的bin包
-      uses: actions/upload-artifact@master
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
-      with:
-        name: OpenWrt_bin
-        path: openwrt/bin
-
-    - name: 组装编译后的固件
-      id: organize
-      working-directory: ./openwrt
-      run: |
-        rm -rf ./artifact/
-        mkdir -p ./artifact/
-        find ./bin/targets/ -name "*combined.img*" | xargs -i mv -f {} ./artifact/
-        find ./bin/targets/ -name "*config*" | xargs -i mv -f {} ./artifact/
-
-    - name: 上传固件
-      uses: actions/upload-artifact@master
-      with:
-        name: OpenWrt_firmware
-        path: openwrt/artifact
+      uses: 82kg/
